@@ -1,39 +1,53 @@
 #include "profiler.h"
 
-//#include "ittnotify.h"
-
 // Reference count of how many profilers are alive and profiling
-std::atomic<int> Profiler::reference_count_ = 0;
+RefcountInt Profiler::reference_count_ = 0;
 
 Profiler::Profiler() 
 {
-	StartProfiling();
 	reference_count_++;
+	StartProfiling();
 }
 
 
 Profiler::~Profiler()
 {
-	StopProfiling();
+	if (is_profiling_) {
+		StopProfiling();
+	}
 }
 
 
 void Profiler::StartProfiling()
 {
-	//__itt_resume();
+	if (reference_count_ == 1) { //I'm the only one alive
+		__itt_resume();
+	}
 	is_profiling_ = true;
 }
 
 
 void Profiler::StopProfiling()
 {
-	//__itt_stop();
+	if (reference_count_ == 1) {
+		reference_count_--;
+		__itt_pause();
+	}
 	is_profiling_ = false;
-	reference_count_--;
 }
 
 
 void Profiler::Reset()
 {
 	StopProfiling();
+}
+
+Task::Task(const __itt_domain* domain, const char* task_name) : domain_(domain) {
+	__itt_string_handle* task_name_handle =
+		__itt_string_handle_create(task_name);
+	__itt_task_begin(domain, __itt_null, __itt_null, task_name_handle);
+}
+
+Task::~Task() {
+	__itt_task_end(domain_);
 }

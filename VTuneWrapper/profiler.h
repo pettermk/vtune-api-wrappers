@@ -1,13 +1,20 @@
 #pragma once
 
+#include "ittnotify.h"
+
+#if (_MSC_VER > 1700 || LINUX)
 #include <atomic>
+typedef RefcountInt std::atomic<int>;
+#else
+typedef int RefcountInt;
+#endif
 
 class Profiler
 {
 public:
 	Profiler();
 	~Profiler();
-	static std::atomic<int> reference_count_;
+	static RefcountInt reference_count_;
 public:
 	void Reset();
 private:
@@ -19,6 +26,9 @@ private:
 class Task
 {
 public:
-	Task(const char* )
+	Task(const __itt_domain* domain, const char* task_name);
+	~Task();
+private:
+	const __itt_domain* domain_;
 };
 
