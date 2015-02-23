@@ -1,5 +1,6 @@
 #include "profiler.h"
 
+using namespace VTune;
 // Reference count of how many profilers are alive and profiling
 RefcountInt Profiler::reference_count_ = 0;
 

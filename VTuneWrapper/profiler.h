@@ -9,6 +9,8 @@ typedef RefcountInt std::atomic<int>;
 typedef int RefcountInt;
 #endif
 
+namespace VTune {
+
 class Profiler
 {
 public:
@@ -32,3 +34,4 @@ private:
 	const __itt_domain* domain_;
 };
 
+}
